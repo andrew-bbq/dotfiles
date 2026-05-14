@@ -14,7 +14,7 @@ Plug 'nvim-treesitter/nvim-treesitter'
 
 -- Telescope
 Plug 'nvim-lua/plenary.nvim'
-Plug('nvim-telescope/telescope.nvim', { ['tag'] = '0.1.4' })
+Plug 'nvim-telescope/telescope.nvim'
 Plug('nvim-telescope/telescope-fzf-native.nvim', { ['do'] = 'make' })
 
 -- Completion
@@ -27,6 +27,9 @@ Plug 'hrsh7th/nvim-cmp'
 
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
+
+-- Markdown
+Plug('iamcco/markdown-preview.nvim', { ['do'] = 'cd app && npx --yes yarn install' })
 
 vim.call('plug#end')
 
@@ -141,6 +144,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
 --------------------------------------------------------------
 --- Options
 --------------------------------------------------------------
+-- auto trim whitespace on save
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+  pattern = { "*" },
+  command = [[%s/\s\+$//e]],
+})
+
+
 
 vim.opt.number = true
 vim.opt.tabstop = 4
