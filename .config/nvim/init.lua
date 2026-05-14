@@ -17,7 +17,43 @@ Plug 'nvim-lua/plenary.nvim'
 Plug('nvim-telescope/telescope.nvim', { ['tag'] = '0.1.4' })
 Plug('nvim-telescope/telescope-fzf-native.nvim', { ['do'] = 'make' })
 
+-- Completion
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+
 vim.call('plug#end')
+
+--------------------------------------------------------------
+--- Completion
+--------------------------------------------------------------
+
+local cmp = require'cmp'
+cmp.setup({
+    snippet = {
+	expand = function(args)
+            vim.fn["vsnip#anonymous"](args.body)
+	end,
+    },
+    mapping = cmp.mapping.preset.insert({
+        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-e>'] = cmp.mapping.abort(),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    }),
+    sources = cmp.config.sources({
+        { name = 'nvim_lsp' },
+        { name = 'vsnip' }
+    })
+})
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 --------------------------------------------------------------
 --- LSP
@@ -25,10 +61,16 @@ vim.call('plug#end')
 
 require('mason').setup()
 require('mason-lspconfig').setup {
-    ensure_installed = { 'ts_ls', 'eslint', 'kotlin_language_server' },
+    ensure_installed = {
+        'ts_ls',
+        'eslint',
+        'kotlin_language_server',
+        'rust_analyzer'
+    },
 }
 
 vim.lsp.config('ts_ls', {
+    capabilities = capabilities,
     filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' },
     root_dir = vim.fs.root(0, { 'package.json', 'tsconfig.json' }),
     settings = {
@@ -42,16 +84,22 @@ vim.lsp.config('ts_ls', {
 })
 
 vim.lsp.config('eslint', {
+    capabilities = capabilities,
     filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
     root_dir = vim.fs.root(0, { '.eslintrc', '.eslintrc.js', '.eslintrc.json', 'package.json' }),
 })
 
 vim.lsp.config('kotlin_language_server', {
+    capabilities = capabilities,
     filetypes = { 'kotlin' },
     root_dir = vim.fs.root(0, { 'build.gradle', 'pom.xml' }),
 })
 
-vim.lsp.enable({'ts_ls', 'eslint', 'kotlin_language_server'})
+vim.lsp.config('rust_analyzer', {
+    capabilities = capabilities,
+})
+
+vim.lsp.enable({'ts_ls', 'eslint', 'kotlin_language_server', 'rust_analyzer'})
 
 --------------------------------------------------------------
 --- Treesitter
@@ -69,6 +117,7 @@ require('telescope').setup {
     },
 }
 require('telescope').load_extension('fzf')
+
 
 --------------------------------------------------------------
 --- Keymaps
