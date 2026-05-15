@@ -18,7 +18,6 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug('nvim-telescope/telescope-fzf-native.nvim', { ['do'] = 'make' })
 
 -- Completion
-Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
@@ -40,9 +39,9 @@ vim.call('plug#end')
 local cmp = require'cmp'
 cmp.setup({
     snippet = {
-	expand = function(args)
+    expand = function(args)
             vim.fn["vsnip#anonymous"](args.body)
-	end,
+    end,
     },
     mapping = cmp.mapping.preset.insert({
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -53,56 +52,79 @@ cmp.setup({
     }),
     sources = cmp.config.sources({
         { name = 'nvim_lsp' },
-        { name = 'vsnip' }
+        { name = 'vsnip' },
+        { name = 'buffer' },
+        { name = 'path' },
     })
 })
+
+cmp.setup.cmdline({ '/', '?' }, {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+        { name = 'buffer' }
+    }
+})
+
+cmp.setup.cmdline( ':', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources({
+        { name = 'path' }
+    }, {
+        { name = 'cmdline' }
+    })
+})
+
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 --------------------------------------------------------------
 --- LSP
 --------------------------------------------------------------
 
-require('mason').setup()
-require('mason-lspconfig').setup {
-    ensure_installed = {
-        'ts_ls',
-        'eslint',
-        'kotlin_language_server',
-        'rust_analyzer'
-    },
-}
-
-vim.lsp.config('ts_ls', {
-    capabilities = capabilities,
-    filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx' },
-    root_dir = vim.fs.root(0, { 'package.json', 'tsconfig.json' }),
-    settings = {
-        typescript = {
-            inlayHints = {
-                includeInlayParameterNameHints = 'all',
-                includeInlayVariableTypeHints = true,
+local servers = {
+    ts_ls = {
+        filetypes = { 'typescript', 'typescriptreact' },
+        root_dir = vim.fs.root(0, { 'package.json', 'tsconfig.json' }),
+        settings = {
+            typescript = {
+                inlayHints = {
+                    includeInlayParameterNameHints = 'all',
+                    includeInlayVariableTypeHints = true,
+                },
             },
         },
     },
-})
+    eslint = {
+        filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+        root_dir = vim.fs.root(0, { '.eslintrc', '.eslintrc.js', '.eslintrc.json', 'package.json' }),
+    },
+    kotlin_language_server = {
+        filetypes = { 'kotlin' },
+        root_dir = vim.fs.root(0, { 'build.gradle', 'pom.xml' }),
+    },
+    rust_analyzer = {},
+    lua_ls = {
+        settings = {
+            Lua = {
+                diagnostics = {
+                    globals = { 'vim' },
+                },
+                format = { enable = false },
+            }
+        },
+    },
+}
 
-vim.lsp.config('eslint', {
-    capabilities = capabilities,
-    filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-    root_dir = vim.fs.root(0, { '.eslintrc', '.eslintrc.js', '.eslintrc.json', 'package.json' }),
-})
+vim.lsp.config('*', { capabilities = capabilities })
 
-vim.lsp.config('kotlin_language_server', {
-    capabilities = capabilities,
-    filetypes = { 'kotlin' },
-    root_dir = vim.fs.root(0, { 'build.gradle', 'pom.xml' }),
-})
-
-vim.lsp.config('rust_analyzer', {
-    capabilities = capabilities,
-})
-
-vim.lsp.enable({'ts_ls', 'eslint', 'kotlin_language_server', 'rust_analyzer'})
+local ensure_installed = vim.tbl_keys(servers or {})
+require('mason').setup()
+require('mason-lspconfig').setup {
+    ensure_installed = ensure_installed,
+}
+for server_name, server_config in pairs(servers) do
+    vim.lsp.config(server_name, server_config)
+    vim.lsp.enable(server_name)
+end
 
 --------------------------------------------------------------
 --- Treesitter
@@ -150,7 +172,14 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   command = [[%s/\s\+$//e]],
 })
 
-
+-- diagnostic options
+vim.diagnostic.config({
+    virtual_text = true,
+    signs = true,
+    underline= true,
+    update_in_insert = false,
+    severity_sort = true
+})
 
 vim.opt.number = true
 vim.opt.tabstop = 4
@@ -159,3 +188,5 @@ vim.opt.expandtab = true
 vim.opt.softtabstop = 4
 vim.opt.background = 'dark'
 
+vim.o.list = true
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
