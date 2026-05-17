@@ -101,7 +101,15 @@ local servers = {
         filetypes = { 'kotlin' },
         root_dir = vim.fs.root(0, { 'build.gradle', 'pom.xml' }),
     },
-    rust_analyzer = {},
+    rust_analyzer = {
+        settings = {
+            ["rust-analyzer"] = {
+                check = {
+                    command = "clippy",
+                },
+            },
+        },
+    },
     lua_ls = {
         settings = {
             Lua = {
@@ -160,6 +168,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
     callback = function(ev)
         local opts = { buffer = ev.buf, silent = true }
         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+        vim.keymap.set('n', '<space>f', vim.lsp.buf.format, opts)
     end,
 })
 
