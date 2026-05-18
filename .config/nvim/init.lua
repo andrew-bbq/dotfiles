@@ -36,12 +36,12 @@ vim.call('plug#end')
 --- Completion
 --------------------------------------------------------------
 
-local cmp = require'cmp'
+local cmp = require 'cmp'
 cmp.setup({
     snippet = {
-    expand = function(args)
+        expand = function(args)
             vim.fn["vsnip#anonymous"](args.body)
-    end,
+        end,
     },
     mapping = cmp.mapping.preset.insert({
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -49,6 +49,20 @@ cmp.setup({
         ['<C-Space>'] = cmp.mapping.complete(),
         ['<C-e>'] = cmp.mapping.abort(),
         ['<CR>'] = cmp.mapping.confirm({ select = true }),
+        ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+                cmp.select_next_item()
+            else
+                fallback()
+            end
+        end, { "i", "s" }),
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+                cmp.select_prev_item()
+            else
+                fallback()
+            end
+        end, {"i", "s" }),
     }),
     sources = cmp.config.sources({
         { name = 'nvim_lsp' },
@@ -65,7 +79,7 @@ cmp.setup.cmdline({ '/', '?' }, {
     }
 })
 
-cmp.setup.cmdline( ':', {
+cmp.setup.cmdline(':', {
     mapping = cmp.mapping.preset.cmdline(),
     sources = cmp.config.sources({
         { name = 'path' }
@@ -171,7 +185,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
         vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
         vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-        vim.keymap.set('n', '<space>f', vim.lsp.buf.format, opts)
+        vim.keymap.set('n', '<space>f', function()
+            vim.lsp.buf.format { async = true }
+        end, opts)
     end,
 })
 
@@ -180,15 +196,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 --------------------------------------------------------------
 -- auto trim whitespace on save
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  pattern = { "*" },
-  command = [[%s/\s\+$//e]],
+    pattern = { "*" },
+    command = [[%s/\s\+$//e]],
 })
 
 -- diagnostic options
 vim.diagnostic.config({
     virtual_text = true,
     signs = true,
-    underline= true,
+    underline = true,
     update_in_insert = false,
     severity_sort = true
 })
