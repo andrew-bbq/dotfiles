@@ -135,6 +135,7 @@ local servers = {
 		},
 	},
 	lemminx = {},
+	yamlls = {},
 }
 
 vim.lsp.config("*", { capabilities = capabilities })
@@ -160,6 +161,11 @@ require("nvim-treesitter").install({ "typescript", "tsx", "kotlin", "rust" })
 --------------------------------------------------------------
 
 require("telescope").setup({
+	pickers = {
+		find_files = {
+			hidden = true,
+		},
+	},
 	defaults = {
 		file_ignore_patterns = { "node_modules", "dist" },
 	},
