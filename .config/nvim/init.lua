@@ -167,7 +167,12 @@ require("telescope").setup({
 		},
 	},
 	defaults = {
-		file_ignore_patterns = { "node_modules", "dist" },
+        pickers = {
+            find_files = {
+                hidden = true
+            }
+        },
+		file_ignore_patterns = { "node_modules", "dist", "%.git/" },
 	},
 })
 require("telescope").load_extension("fzf")
@@ -202,15 +207,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
 --------------------------------------------------------------
 -- auto trim whitespace on save
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-	pattern = { "*" },
 	command = [[%s/\s\+$//e]],
 })
 
 -- auto format on save, too
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-	pattern = { "*" },
 	callback = function(args)
-		require("vim.lsp.buf").format({ bufnr = args.buf })
+        local clients = vim.lsp.get_clients({ bufnr = args.buf })
+        if #clients > 0 then
+		    require("vim.lsp.buf").format({ bufnr = args.buf })
+        end
 	end,
 })
 
