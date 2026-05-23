@@ -1,3 +1,0 @@
-External requirements that cannot be installed through shell commands
-* kitty - terminal
-
