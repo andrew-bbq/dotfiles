@@ -14,3 +14,7 @@ brew install fd
 
 echo "Installing Rust"
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+echo "This is where I'd install nvm, if npm wasn't such a security nightmare"
+#- fisher install jorgebucaran/nvm.fish
+#- nvm install lts
