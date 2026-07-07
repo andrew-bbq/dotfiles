@@ -111,7 +111,7 @@ local servers = {
 		filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 		root_dir = vim.fs.root(0, { ".eslintrc", ".eslintrc.js", ".eslintrc.json", "package.json" }),
 	},
-	kotlin_language_server = {
+	kotlin_lsp = {
 		filetypes = { "kotlin" },
 		root_dir = vim.fs.root(0, { "build.gradle", "pom.xml" }),
 	},
@@ -135,7 +135,9 @@ local servers = {
 		},
 	},
 	lemminx = {},
-	yamlls = {},
+    yamlls = {},
+    html = {},
+    cssls = {},
 }
 
 vim.lsp.config("*", { capabilities = capabilities })
@@ -161,11 +163,6 @@ require("nvim-treesitter").install({ "typescript", "tsx", "kotlin", "rust" })
 --------------------------------------------------------------
 
 require("telescope").setup({
-	pickers = {
-		find_files = {
-			hidden = true,
-		},
-	},
 	defaults = {
         pickers = {
             find_files = {
@@ -187,6 +184,7 @@ vim.keymap.set("n", ";g", builtin.live_grep, {})
 vim.keymap.set("n", ";wg", builtin.grep_string, {})
 vim.keymap.set("n", ";b", builtin.buffers, {})
 vim.keymap.set("n", ";t", builtin.treesitter, {})
+vim.keymap.set("n", ";e", vim.diagnostic.open_float, {})
 
 -- LSP jump to definition in another file
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -238,3 +236,8 @@ vim.opt.background = "dark"
 
 vim.o.list = true
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+
+vim.opt.relativenumber = true
+vim.opt.statuscolumn = '%s%=%{v:relnum == 0 ? v:lnum : v:relnum}'
+
+vim.o.shell = "fish"
