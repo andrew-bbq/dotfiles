@@ -30,6 +30,12 @@ Plug("hrsh7th/vim-vsnip")
 -- Markdown
 Plug("iamcco/markdown-preview.nvim", { ["do"] = "cd app && npx --yes yarn install" })
 
+-- File browser
+Plug("stevearc/oil.nvim")
+
+-- gitsigns
+Plug("lewis6991/gitsigns.nvim")
+
 vim.call("plug#end")
 
 --------------------------------------------------------------
@@ -152,6 +158,10 @@ for server_name, server_config in pairs(servers) do
 	vim.lsp.enable(server_name)
 end
 
+-- non-mason managed LSPs
+vim.lsp.config("gdscript", {})
+vim.lsp.enable("gdscript")
+
 --------------------------------------------------------------
 --- Treesitter
 --------------------------------------------------------------
@@ -173,6 +183,26 @@ require("telescope").setup({
 	},
 })
 require("telescope").load_extension("fzf")
+
+--------------------------------------------------------------
+--- File viewer
+--------------------------------------------------------------
+require("oil").setup({
+    default_file_explorer = true,
+    view_options = {
+        show_hidden = true,
+    }
+})
+
+-- Keymaps
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set("n", "<leader>o", "<CMD>Oil --float<CR>", { desc = "Open parent directory in floating window" })
+
+--------------------------------------------------------------
+--- gitsigns
+--------------------------------------------------------------
+
+require('gitsigns').setup()
 
 --------------------------------------------------------------
 --- Keymaps
