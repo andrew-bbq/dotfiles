@@ -32,6 +32,7 @@ Plug("iamcco/markdown-preview.nvim", { ["do"] = "cd app && npx --yes yarn instal
 
 -- File browser
 Plug("stevearc/oil.nvim")
+Plug("nvim-tree/nvim-web-devicons")
 
 -- gitsigns
 Plug("lewis6991/gitsigns.nvim")
